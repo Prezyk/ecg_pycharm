@@ -111,8 +111,17 @@ def load_mit_db(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_m
 
         # ML-II
         if reduced_DS == False:
-            DS1 = [101, 106, 108, 109, 112, 114, 115, 116, 118, 119, 122, 124, 201, 203, 205, 207, 208, 209, 215, 220, 223, 230]
-            DS2 = [100, 103, 105, 111, 113, 117, 121, 123, 200, 202, 210, 212, 213, 214, 219, 221, 222, 228, 231, 232, 233, 234]
+            # DS1 = [101, 106, 108, 109, 112, 114, 115, 116, 118, 119, 122, 124, 201, 203, 205, 207, 208, 209, 215, 220, 223, 230]
+            # DS2 = [100, 103, 105, 111, 113, 117, 121, 123, 200, 202, 210, 212, 213, 214, 219, 221, 222, 228, 231, 232, 233, 234]
+            DS1 = ['101', '106', '108', '109', '112', '114', '115', '116', '118', '119', '122', '124', '201', '203', '205', '207', '208', '209', '215', '220', '223', '230',
+                   'e0103', 'e0105', 'e0107', 'e0110', 'e0112', 'e0114', 'e0116', 'e0119', 'e0122', 'e0124', 'e0126', 'e0129', 'e0136', 'e0147', 'e0151', 'e0155', 'e0161',
+                   'e0163', 'e0170', 'e0203', 'e0205', 'e0207', 'e0210', 'e0212', 'e0302', 'e0304', 'e0306', 'e0404', 'e0406', 'e0409', 'e0411', 'e0415', 'e0418', 'e0509',
+                   'e0601', 'e0603', 'e0605', 'e0607', 'e0610', 'e0612', 'e0614', 'e0704', 'e0808', 'e0818', 'e1302']
+
+            DS2 = ['100', '103', '105', '111', '113', '117', '121', '123', '200', '202', '210', '212', '213', '214', '219', '221', '222', '228', '231', '232', '233', '234',
+                   'e0104', 'e0106', 'e0108', 'e0111', 'e0113', 'e0115', 'e0118', 'e0121', 'e0123', 'e0125', 'e0127', 'e0133', 'e0139', 'e0148', 'e0154', 'e0159', 'e0162',
+                   'e0166', 'e0202', 'e0204', 'e0206', 'e0208', 'e0211', 'e0213', 'e0303', 'e0305', 'e0403', 'e0405', 'e0408', 'e0410', 'e0413', 'e0417', 'e0501', 'e0515',
+                   'e0602', 'e0604', 'e0606', 'e0609', 'e0611', 'e0613', 'e0615', 'e0801', 'e0817', 'e1301', 'e1304']
 
         # ML-II + V1
         else:
@@ -474,7 +483,8 @@ def load_signal(DS, winL, winR, do_preprocess):
     size_RR_max = 20
 
     #pathDB = '/home/mondejar/dataset/ECG/'
-    pathDB = '/home/kacper/github/database/'
+    # pathDB = '/home/kacper/github/database/'
+    pathDB = os.getcwd() + '/database'
     DB_name = 'mitdb'
     fs = 360
     jump_lines = 1
@@ -484,15 +494,26 @@ def load_signal(DS, winL, winR, do_preprocess):
     fAnnotations = list()
 
 
-    lst = os.listdir(pathDB + DB_name + "/csv")
+    # lst = os.listdir(pathDB + DB_name + "/csv")
+    lst = os.listdir(pathDB + "/csv")
     lst.sort()
+    # for file in lst:
+    #     if file.endswith(".csv"):
+    #         if int(file[0:3]) in DS:
+    #             fRecords.append(file)
+    #     elif file.endswith(".ann"):
+    #         if int(file[0:3]) in DS:
+    #             fAnnotations.append(file)
+
+
     for file in lst:
         if file.endswith(".csv"):
-            if int(file[0:3]) in DS:
+            if file[:-4] in DS:
                 fRecords.append(file)
         elif file.endswith(".ann"):
-            if int(file[0:3]) in DS:
-                fAnnotations.append(file)        
+            if file[:-4] in DS:
+                fAnnotations.append(file)
+
 
     MITBIH_classes = ['N', 'L', 'R', 'e', 'j', 'A', 'a', 'J', 'S', 'V', 'E', 'F']#, 'P', '/', 'f', 'u']
     AAMI_classes = []
@@ -513,7 +534,8 @@ def load_signal(DS, winL, winR, do_preprocess):
         print("Processing signal " + str(r) + " / " + str(len(fRecords)) + "...")
 
         # 1. Read signalR_poses
-        filename = pathDB + DB_name + "/csv/" + fRecords[r]
+        # filename = pathDB + DB_name + "/csv/" + fRecords[r]
+        filename = pathDB + "/csv/" + fRecords[r]
         print(filename)
         #f = open(filename, 'rb')
         f = open(filename, 'rt', encoding='utf8')
@@ -521,7 +543,8 @@ def load_signal(DS, winL, winR, do_preprocess):
         next(reader) # skip first line!
         MLII_index = 1
         V1_index = 2
-        if int(fRecords[r][0:3]) == 114:
+#        if int(fRecords[r][0:3]) == 114:
+        if fRecords[r][0:-4] == 114:
             MLII_index = 2
             V1_index = 1
 
@@ -537,7 +560,8 @@ def load_signal(DS, winL, winR, do_preprocess):
         # display_signal(MLII)
 
         # 2. Read annotations
-        filename = pathDB + DB_name + "/csv/" + fAnnotations[r]
+        filename = pathDB + "/csv/" + fAnnotations[r]
+        # filename = pathDB + DB_name + "/csv/" + fAnnotations[r]
         print(filename)
         f = open(filename, 'rb')
         next(f) # skip first line!
